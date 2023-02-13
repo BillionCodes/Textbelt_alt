@@ -99,7 +99,7 @@ app.post("/text", (req, res) => {
     return;
   }
   const number = stripPhone(req.body.number);
-  if (number.length < 9 || number.length > 10) {
+  if (number.length < 9 || number.length > 12) {
     res.send({ success: false, message: "Invalid phone number." });
     return;
   }
