@@ -27,7 +27,7 @@ function stripPhone(phone) {
 
 function smtpconfig(req, res) {
   let { host, port, secureConnection, user, pass } = req.body;
-  host = ` ${host}`;
+  host = `${host}`;
   text.config(host, port, secureConnection, user, pass);
   res.send("true");
 }
