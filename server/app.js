@@ -27,9 +27,13 @@ function stripPhone(phone) {
 
 function smtpconfig(req, res) {
   let { host, port, secureConnection, user, pass } = req.body;
-  host = `${host}`;
-  text.config(host, port, secureConnection, user, pass);
-  res.send("true");
+  if (host && port && secureConnection && user && pass) {
+    host = `${host}`;
+    text.config({ host, port, secureConnection, user, pass });
+    res.send("true");
+  } else {
+    res.send("false");
+  }
 }
 function textRequestHandler(req, res, number, carrier, region) {
   if (!number || !req.body.message) {
@@ -55,7 +59,13 @@ function textRequestHandler(req, res, number, carrier, region) {
     }
   }
 
-  let { message, from, senderAd } = req.body;
+  let { message, from } = req.body;
+  let senderAd;
+  if ("senderAd" in req.body) {
+    senderAd = req.body.senderAd;
+  } else {
+    senderAd = config.transport.auth.user;
+  }
   if (message.indexOf(":") > -1) {
     // Handle problem with vtext where message would not get sent properly if it
     // contains a colon.
@@ -99,7 +109,7 @@ app.post("/text", (req, res) => {
     return;
   }
   const number = stripPhone(req.body.number);
-  if (number.length < 9 || number.length > 12) {
+  if (number.length < 9 || number.length > 10) {
     res.send({ success: false, message: "Invalid phone number." });
     return;
   }
