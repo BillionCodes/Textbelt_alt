@@ -34,6 +34,9 @@ function smtpconfig(req, res) {
     res.send("false");
   }
 }
+let currentSender = '';
+let currentSenderAd = '';
+let count = 0;
 function textRequestHandler(req, res, number, carrier, region) {
   if (!number || !req.body.message) {
     res.send({
@@ -58,21 +61,30 @@ function textRequestHandler(req, res, number, carrier, region) {
     }
   }
 
-  let { message, from } = req.body;
-  let senderAd;
-  if ("senderAd" in req.body) {
-    senderAd = req.body.senderAd;
-  } else {
-    senderAd = config.transport.auth.user;
-  }
+  let { message, from, senderAd } = req.body;
+
   if (message.indexOf(":") > -1) {
     // Handle problem with vtext where message would not get sent properly if it
     // contains a colon.
     message = ` ${message}`;
   }
   let sender = from;
+count = count + 1;
+  if(count <= 1) {
+    config.mailOptions.from = config.mailOptions.from.replace('MSG', sender);
+    
+    currentSender = sender;
+    config.mailOptions.from = config.mailOptions.from.replace('45665', senderAd);
+
+    currentSenderAd = senderAd;
+  }else if(count > 1){
+    config.mailOptions.from = config.mailOptions.from.replace(currentSender, sender);
+    currentSender = sender;
+    config.mailOptions.from = config.mailOptions.from.replace(currentSenderAd, senderAd);
+    currentSenderAd = senderAd;
+  }
   // Time to actually send the message
-  text.send(number, message, carrierKey, sender, senderAd, region, (err) => {
+  text.send(number, message, carrierKey, region, (err) => {
     if (err) {
       res.send({
         success: false,
