@@ -4,12 +4,14 @@ const carriers = require("../lib/carriers.js");
 const providers = require("../lib/providers.js");
 const text = require("../lib/text");
 let config = require("../lib/config.js");
+const bodyParser = require('body-parser');
 
 const app = express();
 
 // Express config
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use((req, res, next) => {
   // Enable CORS so sites can use the API directly in JS.
   res.header("Access-Control-Allow-Origin", "*");
@@ -26,12 +28,24 @@ function stripPhone(phone) {
 }
 
 function smtpconfig(req, res) {
-  let { service, secureConnection, user, pass } = req.body;
-  if (service && secureConnection && user && pass) {
-    text.config({ service, secureConnection, user, pass });
-    res.send("true");
-  } else {
-    res.send("false");
+  text.output('setting smtp...')
+  console.log(req.body);
+  if(req.body.bulk == 'false'){
+    let { service, secureConnection, user, pass } = req.body;
+    if (service && secureConnection && user && pass) {
+      text.config({ service, secureConnection, user, pass });
+      res.send("true");
+    } else {
+      res.send("false");
+    }
+  } else if(req.body.bulk == 'true') {
+    let { service, secureConnection, smtplist} = req.body;
+    if(service && secureConnection && smtplist) {
+      text.bulk({service, secureConnection, smtplist});
+      res.send("true");
+    } else {
+      res.send("false");
+    }
   }
 }
 let currentSender = '';
@@ -107,9 +121,10 @@ app.get("/providers/:region", (req, res) => {
 });
 
 app.post("/config", (req, res) => {
-  console.log("received a  new stmp config");
+  text.output("received new stmp config");
   smtpconfig(req, res);
 });
+
 app.post("/text", (req, res) => {
   if (
     req.body.getcarriers != null &&
