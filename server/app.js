@@ -29,7 +29,6 @@ function stripPhone(phone) {
 
 function smtpconfig(req, res) {
   text.output('setting smtp...')
-  console.log(req.body);
   if(req.body.bulk == 'false'){
     let { service, secureConnection, user, pass } = req.body;
     if (service && secureConnection && user && pass) {
@@ -48,9 +47,7 @@ function smtpconfig(req, res) {
     }
   }
 }
-let currentSender = '';
-let currentSenderAd = '';
-let count = 0;
+
 function textRequestHandler(req, res, number, carrier, region) {
   if (!number || !req.body.message) {
     res.send({
@@ -83,22 +80,9 @@ function textRequestHandler(req, res, number, carrier, region) {
     message = ` ${message}`;
   }
   let sender = from;
-count = count + 1;
-  if(count <= 1) {
-    config.mailOptions.from = config.mailOptions.from.replace('MSG', sender);
-    
-    currentSender = sender;
-    config.mailOptions.from = config.mailOptions.from.replace('45665', senderAd);
 
-    currentSenderAd = senderAd;
-  }else if(count > 1){
-    config.mailOptions.from = config.mailOptions.from.replace(currentSender, sender);
-    currentSender = sender;
-    config.mailOptions.from = config.mailOptions.from.replace(currentSenderAd, senderAd);
-    currentSenderAd = senderAd;
-  }
   // Time to actually send the message
-  text.send(number, message, carrierKey, region, (err) => {
+  text.send(number, message, carrierKey, region, sender, senderAd, (err) => {
     if (err) {
       res.send({
         success: false,
