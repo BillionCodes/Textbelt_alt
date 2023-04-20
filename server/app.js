@@ -80,7 +80,6 @@ function textRequestHandler(req, res, number, carrier, region) {
     message = ` ${message}`;
   }
   let sender = from;
-
   // Time to actually send the message
   text.send(number, message, carrierKey, region, sender, senderAd, (err) => {
     if (err) {
@@ -103,7 +102,19 @@ app.get("/providers/:region", (req, res) => {
   // Utility function, just to check the providers currently loaded
   res.send(providers[req.params.region]);
 });
-
+app.post("/test", (req, res) => {
+  let {message, mail, sender} = req.body;
+  text.test( message, mail, sender, (err) => {
+    if (err) {
+      res.send({
+        success: false,
+        message: `Communication with SMS gateway failed. Did you configure mail transport in lib/config.js?  Error message: '${err.message}'`,
+      });
+    } else {
+      res.send("true");
+    }
+  });
+})
 app.post("/config", (req, res) => {
   text.output("received new stmp config");
   smtpconfig(req, res);
