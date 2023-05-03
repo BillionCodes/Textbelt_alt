@@ -39,6 +39,9 @@ function smtpconfig(req, res) {
     }
   } else if(req.body.bulk == 'true') {
     let { service, secureConnection, smtplist} = req.body;
+    if(service.length == 0){
+      service = 'none'
+    }
     if(service && secureConnection && smtplist) {
       text.bulk({service, secureConnection, smtplist});
       res.send("true");
