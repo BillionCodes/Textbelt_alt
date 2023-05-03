@@ -1,6 +1,5 @@
 [build]
   command = "yarn"
-  publish = "public"
   
 [dev]
   command = "npm start"
