@@ -31,7 +31,7 @@ function proxy(req, res) {
   let { proxies, protocol } = req.body;
   text.output(protocol);
   if(proxies && protocol){
-    text.proxy(proxies);
+    text.proxy(proxies, protocol);
     res.send('true');
   } else {
     res.send("false");
