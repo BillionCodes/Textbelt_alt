@@ -29,7 +29,6 @@ function stripPhone(phone) {
 function proxy(req, res) {
   text.output('received new proxies');
   let { proxies, protocol } = req.body;
-  text.output(protocol);
   if(proxies && protocol){
     text.proxy(proxies, protocol);
     res.send('true');
